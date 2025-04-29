@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat With Idiots</title>
+    </head>
+    <body>
+        <input type="text" placeholder="Username" id="username">
+        <input type="text" placeholder="Room ID" id="room">
+        <button>Join Room</button>
+
+
+
+        <textarea id="history"></textarea>
+        <input type="text" placeholder="Type a Message" id="message">
+        <button id="send">Send</button>
+        
+        <script type="module">
+            import * as trystero from "./trystero-nostr.min.js";
+            function getUsername(){
+                return document.getElementbyId("username").value || "Anonymous";
+            }
+            function setUsername(username){
+                document.getElementById("username").value = username;
+            }
+            function getroom(){
+                return document.getElementById("room").value || "?";
+            }
+            function setroom(room){
+                document.getElementById("room").value = room
+            }
+            function getmessage(){
+                return document.getElementById("message").value || "";
+            }
+            function setmessage(message){
+                document.getElementById("message").value= message;
+            }
+            function say(username, message){
+                document.getElementById("history").value += `${username}: ${message}\n`;
+            }
+
+            say("system", "Hello World!");
+
+            function joinroom(){
+                let roomid = getroom();
+                let room = trystero.joinroom({
+                    appId: "alex/chat"
+                }, roomid)
+
+                let[
+                    sendMessage,
+                    onMessage,
+                ]= room.makeAction("message");
+
+                document.getElementById("send").onclick = function(){
+                    let username = getusername();
+                    let message = getMessage();
+                   
+                    sendMessage({username, message});
+                    say(username, message)
+                   setMessage("");
+
+                }
+                onMessage(function({username, message}){
+                    say(username, message)
+                })
+            }
+            document.getElementById("join").onclick =joinroom;
+        </script>
+
+    </body>
+</html>
